@@ -1,0 +1,25 @@
+---
+ - hosts: master
+   become: yes
+   gather_facts: false
+   tasks:
+     - name: create token and join command
+       shell: kubeadm token create --print-join-command
+       register: node_join_raw
+
+     - name: set command as fact
+       set_fact: 
+         node_join: "{{ node_join_raw.stdout_lines[0] }}"
+         cacheable: yes
+
+#     - name: echo command
+#       shell: echo "{{ node_join }}" >> test_join_command.txt
+#       args:
+#        chdir: /home/acurry/outfiles
+#        creates: test_join_command.txt
+
+ - hosts: appnodes
+   become: yes
+   tasks:
+     - name: Join app nodes to cluster
+       shell: "{{ hostvars['kubemaster'].node_join }}"

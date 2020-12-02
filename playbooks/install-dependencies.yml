@@ -1,0 +1,61 @@
+
+---
+ - hosts: all
+   become: yes
+   tasks:
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: true
+
+    - name: Enable docker service on startup
+      service:
+        name: docker.service
+        enabled: yes
+
+    - name: Install APT Transport
+      apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Add Kubernetes apt-key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Kubernetes APT repo
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: 'kubernetes'
+
+    - name: Install Kubelet
+      apt:
+        name: kubelet
+        state: present
+        update_cache: true
+
+    - name: Install kubeadm
+      apt:
+        name: kubeadm
+        state: present
+
+    - name: Disable SWAP
+      become: yes
+      shell: swapoff -a
+
+    - name: Edit fstab to disable SWAP on startup
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
+ - hosts: master
+   become: yes
+   tasks:
+    - name: Install kubectl on master
+      apt:
+        name: kubectl
+        state: present

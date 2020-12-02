@@ -1,0 +1,10 @@
+[master]
+kubemaster ansible_connection=local
+
+[appnodes]
+kube-app01
+kube-app02
+
+[all:vars]
+ansible_user=acurry
+ansible_python_interpreter=/usr/bin/python3

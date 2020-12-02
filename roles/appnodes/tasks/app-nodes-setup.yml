@@ -1,0 +1,19 @@
+---
+ - hosts: master
+   become: yes
+   tasks:
+     - name: create token and join command
+       shell: kubeadm token create --print-join-command
+       register: node-join-command
+
+     - name: set command as fact
+       set_fact: node-join: "{{ node-join-command.stdout_lines[0] }}"
+
+ - hosts: appnodes
+   become: yes
+   tasks:
+     - name: Join app nodes to cluster
+       shell: "{{ hostvars['master'].node-join }} >> successful_join.out"
+       args:
+        chdir: $HOME/outfiles
+        creates: successful_join.out

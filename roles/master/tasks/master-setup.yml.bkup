@@ -1,0 +1,30 @@
+
+---
+ - hosts: master
+   become: yes
+   tasks:
+     - name: initialize cluster and subnet
+       shell: kubeadm init --pod-network-cidr=192.168.100.0/16 >> cluster-init.out
+       args:
+        chdir: $HOME/outfiles
+        creates: cluster_init.out
+
+     - name: create .kube dir
+       become: yes
+       file:
+         path: $HOME/.kube
+         state: directory
+         mode: 0755
+
+     - name: copy conf file to .kube dir
+       copy:
+         src: /etc/kubernetes/admin.conf
+         dest: $HOME/.kube/config
+         owner: acurry
+
+     - name: install pod network addon
+       become: yes
+       shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml >> flannel-setup.out
+       args:
+         chdir: $HOME/outfiles
+         creates: flannel-setup.out

@@ -1,0 +1,32 @@
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+    update_cache: true
+
+- name: Install APT Transport
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: Add Kubernetes apt-key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Kubernetes APT repo
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: 'kubernetes'
+
+- name: Install Kubelet
+  apt:
+    name: kubelet
+    state: present
+    update_cache: true
+
+- name: Install kubeadm
+  apt:
+    name: kubeadm
+    state: present
